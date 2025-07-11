@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -20,6 +21,13 @@
 #include <unordered_map>
 #include <vector>
 #include <source_location>
+
+
+// Ensure C++20 use
+#define ACS_MINIMAL_STD 202002L
+#if __cplusplus < ACS_MINIMAL_STD
+#   error "[ ACS ] You need at least C++20 for compiling and use this library."
+#endif
 
 // Current Acherion Component System (acs) version.
 #define ACS_VERSION "1.2.0"
@@ -36,24 +44,24 @@
  * @param MESSAGE : Assertion message when fail.
  **/
 #ifndef ACS_ASSERT
-#   define ACS_ASSERT( COND, MESSAGE )
+#   if defined( _DEBUG ) || defined( ACS_FORCE_ASSERT )
+#       define ACS_ASSERT( COND, MESSAGE )\
+            do {\
+                if ( !( COND ) ) {\
+                    const auto location = std::source_location::current( );\
+                    std::cerr << "Assertion failed : " << #COND\
+                        << "\nMessage : " << MESSAGE\
+                        << "\nFile : " << location.file_name( )\
+                        << "\nLine : " << location.line( )\
+                        << "\nColumn : " << location.column( )\
+                        << "\nFunction : " << location.function_name( );\
+                    std::abort( );\
+                }\
+            } while( false );
+#   else
+#       define ACS_ASSERT( COND, MESSAGE ) ( (void)COND );
+#   endif
 #endif
-
-/*
-#include <source_location>
-#define ACS_ASSERT( COND, MESSAGE )\
-    do {\
-        if ( !( COND ) ) {\
-            std::cerr << "Assertion failed : " << #COND\
-                << "\nMessage : " << #MESSAGE\
-                << "\nFile : " << std::source_location::current( ).file_name( )\
-                << "\nLine : " << location.line( )\
-                << "\nColumn : " << location.column( )\
-                << "\nFunction : " << location.function_name( )\
-            std::abort( );\
-        }\
-    } while( false );
-    */
 
 namespace acs {
     
