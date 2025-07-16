@@ -310,21 +310,38 @@ namespace acs {
          **/
         bool FindEntityIndex(
             const AcheronUUID entity,
-            std::vector<AcheronUUID>::const_iterator& iterator,
+            std::vector<AcheronUUID>::iterator& iterator,
             size_t& index
-        ) const {
+        ) {
             const auto iterator_start = m_entities.begin( );
             const auto iterator_stop  = m_entities.end( );
 
             iterator = std::lower_bound( iterator_start, iterator_stop, entity );
+            index    = std::distance( iterator_start, iterator );
 
-            if ( iterator != iterator_stop && *iterator != entity ) {
-                index = std::distance( iterator_start, iterator );
+            return iterator != iterator_stop && *iterator != entity;
+        };
+        
+        /**
+         * FindEntityIndex const function
+         * @note : Find component index from entity uuid.
+         * @param entity : Entity uuid.
+         * @param iterator : Reference to entities uuids iterator.
+         * @param index : Reference to component index.
+         * @return True when the entity as a component instance, false otherwise.
+         **/
+        bool FindEntityIndex(
+            const AcheronUUID entity,
+            std::vector<AcheronUUID>::const_iterator& iterator,
+            size_t& index
+        ) const {
+            const auto iterator_start = m_entities.cbegin( );
+            const auto iterator_stop  = m_entities.cend( );
 
-                return true;
-            }
+            iterator = std::lower_bound( iterator_start, iterator_stop, entity );
+            index    = std::distance( iterator_start, iterator );
 
-            return false;
+            return iterator != iterator_stop && *iterator != entity;
         };
 
     };
